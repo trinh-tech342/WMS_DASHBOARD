@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WMS MALEFICENT - QUYỀN NĂNG KHO VẬN</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+    <div class="mist-container"></div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="logo">🔮 WMS REALM</div>
+            <nav class="nav-menu">
+                <button class="nav-btn active">📊 Tổng Quan</button>
+                <button class="nav-btn">🧪 Xưởng Chế Biến</button>
+                <button class="nav-btn">📦 Xưởng Đóng Gói</button>
+                <button class="nav-btn">🚚 Xuất Kho</button>
+            </nav>
+            <div class="magic-sphere">
+                <div class="sphere-core"></div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header>
+                <h1 class="glow-text">BẢN TIN QUYỀN NĂNG - 12/02/2026</h1>
+                <p class="subtitle">"Sức mạnh nằm ở sự kiểm soát luồng chảy của vạn vật."</p>
+            </header>
+
+            <section class="kpi-grid">
+                <div class="kpi-card purple-glow">
+                    <span>TỒN KHO THÀNH PHẨM</span>
+                    <h2 id="total-qty">1,280</h2>
+                    <small>Đơn vị: Gói/Hũ</small>
+                </div>
+                <div class="kpi-card green-glow">
+                    <span>LÔ ĐANG NẤU (BATCH)</span>
+                    <h2 id="batch-active">08</h2>
+                    <small>Trạng thái: Ổn định</small>
+                </div>
+                <div class="kpi-card orange-glow">
+                    <span>ĐƠN HÀNG CHỜ XUẤT</span>
+                    <h2 id="order-pending">15</h2>
+                    <small>Mã đơn: #ORD-99</small>
+                </div>
+            </section>
+
+            <section class="data-grid">
+                <div class="glass-panel inventory-panel">
+                    <div class="panel-header">
+                        <h3 class="glow-text-small">🔍 TRẠNG THÁI SKU</h3>
+                        <div class="search-box">
+                            <input type="text" id="skuSearch" placeholder="Tìm tên hoặc Mã đơn...">
+                            <span class="magic-glow"></span>
+                        </div>
+                    </div>
+                    <table id="sku-table">
+                        <thead>
+                            <tr>
+                                <th>Sản Phẩm</th>
+                                <th>Mã Đơn (Order ID)</th>
+                                <th>Tồn Kho</th>
+                                <th>Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="glass-panel transaction-panel">
+                    <h3>⚡ NHẬT KÝ GIAO DỊCH (WMS)</h3>
+                    <div class="scroll-box">
+                        <table id="trans-table">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Loại Giao Dịch</th>
+                                    <th>Mã Lô (Batch)</th>
+                                    <th>Vị Trí</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div id="magicModal" class="modal">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2 id="modalTitle">🔮 NHẬP DỮ LIỆU</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <form id="entryForm">
+                <div class="input-group">
+                    <label>Mã Lô (Batch ID)</label>
+                    <input type="text" id="batchId" placeholder="VD: #LOT-2026-005" required>
+                </div>
+                <div class="input-group">
+                    <label>Số lượng (Qty)</label>
+                    <input type="number" id="qty" placeholder="Nhập sản lượng..." required>
+                </div>
+                <div class="input-group">
+                    <label>Trạng thái</label>
+                    <select id="status">
+                        <option value="ĐANG TH">Đang thực hiện</option>
+                        <option value="HOÀN THÀNH">Hoàn thành</option>
+                        <option value="FAIL">Lỗi (FAIL)</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">TRIỆU HỒI DỮ LIỆU</button>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
