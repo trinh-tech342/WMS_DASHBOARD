@@ -8,22 +8,41 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="mist-container"></div>
     <div class="dashboard-layout">
-        <aside class="sidebar">
-            <div class="logo">🔮 WMS REALM</div>
-            <nav class="nav-menu">
-                <button class="nav-btn active">📊 Tổng Quan</button>
-                <button class="nav-btn">🧪 Xưởng Chế Biến</button>
-                <button class="nav-btn">📦 Xưởng Đóng Gói</button>
-                <button class="nav-btn">🚚 Xuất Kho</button>
-            </nav>
-            <div class="magic-sphere">
-                <div class="sphere-core"></div>
-            </div>
-        </aside>
+      <aside class="sidebar">
+          <div class="logo">CYBER WMS</div>
+          
+          <nav class="nav-menu">
+              <button class="nav-btn active" onclick="switchTab('overview')">
+                  <span class="btn-icon">📊</span>
+                  <span class="btn-text">Tổng Quan</span>
+                  <div class="btn-glow"></div>
+              </button>
+              <button class="nav-btn" onclick="switchTab('production')">
+                  <span class="btn-icon">🧪</span>
+                  <span class="btn-text">Chế Biến</span>
+                  <div class="btn-glow"></div>
+              </button>
+              <button class="nav-btn" onclick="openRMModal()">
+                  <span class="btn-icon">📦</span>
+                  <span class="btn-text">Kho Bãi</span>
+                  <div class="btn-glow"></div>
+              </button>
+              <button class="nav-btn" onclick="openDeliveryModal()">
+                  <span class="btn-icon">🚚</span>
+                  <span class="btn-text">Xuất Kho</span>
+              </button>
+          </nav>
+
+          <div class="magic-sphere-container">
+              <div class="magic-sphere"></div>
+              <div class="sphere-status">SYSTEM ONLINE</div>
+          </div>
+      </aside>
 
         <main class="main-content">
             <header>
@@ -31,93 +50,275 @@
                 <p class="subtitle">"Sức mạnh nằm ở sự kiểm soát luồng chảy của vạn vật."</p>
             </header>
 
-            <section class="kpi-grid">
-                <div class="kpi-card purple-glow">
-                    <span>TỒN KHO THÀNH PHẨM</span>
-                    <h2 id="total-qty">1,280</h2>
-                    <small>Đơn vị: Gói/Hũ</small>
-                </div>
-                <div class="kpi-card green-glow">
-                    <span>LÔ ĐANG NẤU (BATCH)</span>
-                    <h2 id="batch-active">08</h2>
-                    <small>Trạng thái: Ổn định</small>
-                </div>
-                <div class="kpi-card orange-glow">
-                    <span>ĐƠN HÀNG CHỜ XUẤT</span>
-                    <h2 id="order-pending">15</h2>
-                    <small>Mã đơn: #ORD-99</small>
-                </div>
-            </section>
+            <div id="overview-section">
+                <section class="kpi-grid">
+                    <div class="kpi-card purple-glow clickable-card" onclick="openModal('inventory-detail')">
+                        <span class="magic-icon">🔮</span>
+                        <span>TỒN KHO THÀNH PHẨM</span>
+                        <h2 id="total-qty-main">0</h2>
+                        <small>Bấm để xem chi tiết SKU</small>
+                    </div>
 
-            <section class="data-grid">
-                <div class="glass-panel inventory-panel">
-                    <div class="panel-header">
-                        <h3 class="glow-text-small">🔍 TRẠNG THÁI SKU</h3>
-                        <div class="search-box">
-                            <input type="text" id="skuSearch" placeholder="Tìm tên hoặc Mã đơn...">
-                            <span class="magic-glow"></span>
+                    <div class="kpi-card green-glow clickable-card" onclick="openModal('mes-detail')">
+                        <span class="magic-icon">🧪</span>
+                        <span>ĐIỀU HÀNH SẢN XUẤT</span>
+                        <h2 id="batch-active-main">0</h2>
+                        <small id="mes-status-text">Đang chạy: 0 | Đợi QC: 0</small>
+                    </div>
+
+                    <div class="kpi-card orange-glow clickable-card" id="order-card" onclick="openModal('order-detail')">
+                        <span>ĐƠN HÀNG CHỜ XUẤT</span>
+                        <h2 id="order-pending">0</h2>
+                        <div id="stock-warning-msg"></div>
+                        <small id="inventory-summary">Kiểm tra tồn kho...</small>
+                    </div>
+                </section>
+            </div>
+
+            <div id="detailModal" class="modal">
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3 id="modalTitle">Chi tiết dữ liệu</h3>
+                        <span class="close-btn" onclick="closeModal()">&times;</span>
+                    </div>
+                    <div id="modalBody" class="modal-body-content">
+                        </div>
+                </div>
+            </div>
+
+            <div id="table-templates" style="display: none;">
+                <div id="inventory-detail">
+                    <div class="filter-controls-modal">
+                        <input type="text" id="inventorySearchModal" oninput="handleInventorySearch(this)" placeholder="🔍 Tìm SKU...">
+                    </div>
+                    <table class="popup-table">
+                        <thead>
+                            <tr><th>SKU ID</th><th>Phân loại</th><th>ATP</th><th>On-hand</th><th>Trạng thái</th></tr>
+                        </thead>
+                        <tbody id="inventory-monitor-body"></tbody>
+                    </table>
+                </div>
+
+                <div id="mes-detail">
+                    <table class="popup-table">
+                        <thead>
+                            <tr><th>Mã Lô</th><th>Sản Phẩm</th><th>Tiến Độ</th><th>QC Status</th><th>Trạng Thái</th></tr>
+                        </thead>
+                        <tbody id="mes-monitor-body"></tbody>
+                    </table>
+                </div>
+
+                <div id="order-detail">
+                    <h4 style="color: var(--accent-red);">⚠️ DANH SÁCH THIẾU HÀNG</h4>
+                    <table class="popup-table">
+                        <thead>
+                            <tr><th>SKU</th><th>Cần</th><th>Kho</th><th>Thiếu</th></tr>
+                        </thead>
+                        <tbody id="shortage-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <section class="glass-panel magic-container margin-bottom-large">
+                <div class="panel-header-complex">
+                    <div class="title-group">
+                        <h3 class="glow-text-small">📡 HỆ THỐNG TRUY QUÉT SKU</h3> 
+                        <div class="scan-line"></div>
+                    </div>
+                    
+                    <div class="filter-nexus">
+                        <div class="filter-group">
+                            <span class="filter-label">PHÂN LOẠI:</span>
+                            <select class="cyber-select" id="filterCategory">
+                                <option value="all">TẤT CẢ PHÂN TỬ</option>
+                                <option value="raw">NGUYÊN LIỆU</option>
+                                <option value="finished">THÀNH PHẨM</option>
+                            </select>
+                        </div>
+                        <div class="search-box-wrapper">
+                            <input type="text" id="skuSearch" placeholder="Triệu hồi mã ID hoặc SKU...">
+                            <div class="search-glow-line"></div>
                         </div>
                     </div>
+                </div>
+
+                <div class="table-wrapper">
                     <table id="sku-table">
                         <thead>
                             <tr>
-                                <th>Sản Phẩm</th>
+                                <th>SKU ID</th> <th>Sản Phẩm</th>
                                 <th>Mã Đơn (Order ID)</th>
                                 <th>Tồn Kho</th>
                                 <th>Trạng Thái</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody id="sku-body">
+                            </tbody>
                     </table>
                 </div>
+            </section>
 
-                <div class="glass-panel transaction-panel">
-                    <h3>⚡ NHẬT KÝ GIAO DỊCH (WMS)</h3>
-                    <div class="scroll-box">
-                        <table id="trans-table">
-                            <thead>
-                                <tr>
-                                    <th>Ngày</th>
-                                    <th>Loại Giao Dịch</th>
-                                    <th>Mã Lô (Batch)</th>
-                                    <th>Vị Trí</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                </tbody>
-                        </table>
+            <section class="glass-panel transaction-panel">
+                <div class="panel-header-complex">
+                    <div class="title-group">
+                        <h3 class="glow-text-small">⚡ NHẬT KÝ GIAO DỊCH</h3>
                     </div>
+                </div>
+                <div class="table-wrapper log-style">
+                    <table id="transaction-table">
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Loại Giao Dịch</th>
+                                <th>Mã Lô (Batch)</th>
+                                <th>Vị Trí</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </section>
         </main>
     </div>
-    <div id="magicModal" class="modal">
-        <div class="modal-content glass-panel">
+     <div id="magicModal" class="modal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">🔮 NHẬP DỮ LIỆU</h2>
-                <span class="close-btn">&times;</span>
+                <h2 class="glow-text-small">🔮 NHẬP DỮ LIỆU</h2>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
             </div>
+            
             <form id="entryForm">
-                <div class="input-group">
-                    <label>Mã Lô (Batch ID)</label>
-                    <input type="text" id="batchId" placeholder="VD: #LOT-2026-005" required>
-                </div>
-                <div class="input-group">
-                    <label>Số lượng (Qty)</label>
-                    <input type="number" id="qty" placeholder="Nhập sản lượng..." required>
-                </div>
-                <div class="input-group">
-                    <label>Trạng thái</label>
-                    <select id="status">
-                        <option value="ĐANG TH">Đang thực hiện</option>
-                        <option value="HOÀN THÀNH">Hoàn thành</option>
-                        <option value="FAIL">Lỗi (FAIL)</option>
-                    </select>
-                </div>
+                <label>Mã Lô (Batch ID)</label>
+                <input type="text" id="batchId" placeholder="VD: BATCH-0226-005" required>
+                
+                <label>Số lượng (Qty)</label>
+                <input type="number" id="qty" placeholder="Nhập sản lượng..." required>
+                
+                <label>Trạng thái</label>
+                <select id="status">
+                    <option value="Created">⚡ Đang thực hiện (Running)</option>
+                    <option value="Completed">✓ Đã hoàn thành (Finished)</option>
+                </select>
+                
                 <button type="submit" class="submit-btn">TRIỆU HỒI DỮ LIỆU</button>
             </form>
         </div>
     </div>
+    <div id="rmInputModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h2 class="glow-text-small" data-text="NHẬP KHO NGUYÊN LIỆU">NHẬP KHO NGUYÊN LIỆU</h2>
+          <span class="close-btn" onclick="closeModal()">&times;</span>
+      </div>
+        
+        <form id="rmForm">
+            <div class="form-row-dual">
+                <div class="input-group">
+                    <label class="magical-label">MÃ LÔ TỰ ĐỘNG (RM_LOT)</label>
+                    <input type="text" id="rmLot" class="cyber-input" readonly style="color: var(--accent-purple); font-weight: bold;">
+                </div>
+                <div class="input-group">
+                    <label>NGÀY NHẬP</label>
+                    <input type="date" id="rmDate" class="cyber-input">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>TÊN NGUYÊN LIỆU</label>
+                <input type="text" id="rmName" placeholder="Ví dụ: Bột mì, Nhựa PE..." class="cyber-input" required>
+            </div>
+
+            <div class="form-row-dual">
+                <div class="input-group">
+                    <label>SỐ LƯỢNG</label>
+                    <input type="number" id="rmQty" class="cyber-input" placeholder="0" required>
+                </div>
+                <div class="input-group">
+                    <label>ĐƠN VỊ</label>
+                    <input type="text" id="rmUnit" placeholder="Kg, Lít, Mét..." class="cyber-input">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>NHÀ CUNG CẤP</label>
+                <input type="text" id="rmSupplier" placeholder="Tên công ty cung cấp..." class="cyber-input">
+            </div>
+
+            <div class="input-group">
+                <label>SỐ HÓA ĐƠN (NẾU CÓ)</label>
+                <input type="text" id="rmInvoice" placeholder="Số hóa đơn đỏ / Phiếu giao hàng..." class="cyber-input">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn-glow">TRIỆU HỒI VÀO KHO</button>
+            </div>
+        </form>
+    </div>
+</div>
+    <div id="deliveryModal" class="modal">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h2 class="glow-text-small">🚚 LỆNH ĐIỀU CHUYỂN HÀNG HÓA</h2>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
+        
+        <form id="deliveryForm">
+            <div class="form-row-triple">
+                <div class="input-group">
+                    <label>PHÂN LOẠI PHIẾU</label>
+                    <select id="transType" class="cyber-select-full">
+                        <option value="XUẤT KHO">📤 XUẤT KHO</option>
+                        <option value="NHẬP KHO">📥 NHẬP KHO</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>NGÀY THỰC HIỆN</label>
+                    <input type="date" id="transDate" class="cyber-input">
+                </div>
+            </div>
+
+            <div class="form-row-dual">
+                <div class="input-group">
+                    <label>NƠI GỬI (SOURCE)</label>
+                    <input type="text" id="sourceLoc" placeholder="Kho tổng / Xưởng..." class="cyber-input">
+                </div>
+                <div class="input-group">
+                    <label>NƠI NHẬN (DESTINATION)</label>
+                    <input type="text" id="destLoc" placeholder="Khách hàng / Đại lý..." class="cyber-input">
+                </div>
+            </div>
+
+            <div class="table-section">
+                <label>DANH MỤC HÀNG HÓA</label>
+                <div class="table-wrapper mini-table">
+                    <table id="itemsTable">
+                        <thead>
+                            <tr>
+                                <th>TÊN HÀNG HÓA</th>
+                                <th width="100px">SỐ LƯỢNG</th>
+                                <th>MỤC ĐÍCH</th>
+                                <th width="50px"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsBody">
+                            <tr>
+                                <td><input type="text" class="table-input" placeholder="Tên hàng..."></td>
+                                <td><input type="number" class="table-input" value="1"></td>
+                                <td><input type="text" class="table-input" placeholder="Lý do..."></td>
+                                <td><button type="button" class="btn-remove" onclick="removeRow(this)">×</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn-add-row" onclick="addRow()">+ THÊM DÒNG</button>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn-glow">XÁC NHẬN GỬI GOOGLE SHEETS</button>
+            </div>
+        </form>
+    </div>
+</div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 </body>
